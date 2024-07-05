@@ -1,0 +1,2 @@
+cd path/to/your/script
+pyinstaller --onefile --hidden-import=pkg_resources.py2_warn --hidden-import=pkg_resources.main main.py
