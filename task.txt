@@ -1,0 +1,12 @@
+UAC Magnificent document
+
+1) strategy will run from next day of expiery to next coming expiry
+2) at start time  we will fetch ltp and buy and sell persentage will be given by user let say it is 10 percent
+3) suppose ltp 100, but level 110 sell level 90
+
+4) buy strike and sell strike premium will be given by user buy strike will be greatter than 110 which ever strike premium matches we will open buy position. Similarly sell strike premium will be match and sell position will be open. Sell strike will be less than 110
+3) same thing will happen on down side range.
+
+4) not when price reached 110 for main stock. We will open again buy and sell position only once again.
+
+5) all position will be exit buy user manually or at next expiry.

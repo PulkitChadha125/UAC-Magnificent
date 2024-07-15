@@ -1,0 +1,5 @@
+15/07/2024 20:59:01 BuyrangeValue : 975.15 @ SellrangeVale: 797.85
+15/07/2024 20:59:01 Buy order executed @ Call SBIN25JUL24980CE @ TradePrice: 0.9
+15/07/2024 20:59:01 Buy order executed @ Put SBIN25JUL24800PE @ TradePrice: 1.15
+15/07/2024 20:59:01 Sell order executed @ Call SBIN25JUL24960CE @ TradePrice: 1.4
+15/07/2024 20:59:01 Sell order executed @ Put SBIN25JUL24810PE @ TradePrice: 1.45

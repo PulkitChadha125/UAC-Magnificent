@@ -1,0 +1,2 @@
+Symbol,Quantity,StepSize,StepNumberBUYCE,StepNumberSELLCE,StepNumberBUYPE,StepNumberSELLPE,SellPremium_CE,SellPremium_PE,BuyPremium_PE,BuyPremium_CE,BuyPercentage,SellPercentage,EntryDate,EntryTime,ExitDate,ExitTime,BaseSymbol,TradeExpiery
+SBIN25JUL24FUT,3000,10,3,3,3,3,2,2,8,8,10,10,15-Jul-24,20:59,25-Jul-24,11:00,SBIN,25-Jul-24
