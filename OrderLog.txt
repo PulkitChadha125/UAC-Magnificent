@@ -1,5 +1,50 @@
-15/07/2024 20:59:01 BuyrangeValue : 975.15 @ SellrangeVale: 797.85
-15/07/2024 20:59:01 Buy order executed @ Call SBIN25JUL24980CE @ TradePrice: 0.9
-15/07/2024 20:59:01 Buy order executed @ Put SBIN25JUL24800PE @ TradePrice: 1.15
-15/07/2024 20:59:01 Sell order executed @ Call SBIN25JUL24960CE @ TradePrice: 1.4
-15/07/2024 20:59:01 Sell order executed @ Put SBIN25JUL24810PE @ TradePrice: 1.45
+16/07/2024 20:15:01 BuyrangeValue : 970.86 @ SellrangeVale: 794.34
+16/07/2024 20:15:01 Buy order executed @ Call SBIN25JUL24970CE @ TradePrice: 0.30000000000000004
+16/07/2024 20:15:01 Buy Order executed CALL side SBIN_25-Jul-2024_CE_970 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:01 Buy Order executed CALL side SBIN_25-Jul-2024_CE_970 @  0.30000000000000004,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:01 Buy Order executed CALL side SBIN_25-Jul-2024_CE_970 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:01 Buy order executed @ Put SBIN25JUL24790PE @ TradePrice: 0.19999999999999996
+16/07/2024 20:15:01 Buy Order executed PUT side SBIN_25-Jul-2024_PE_790 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:01 Buy Order executed PUT side SBIN_25-Jul-2024_PE_790 @  0.30000000000000004,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:01 Buy Order executed PUT side SBIN_25-Jul-2024_PE_790 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:01 Sell order executed @ Call SBIN25JUL24920CE @ TradePrice: 2.95
+16/07/2024 20:15:01 Sell Order executed CALL side SBIN_25-Jul-2024_CE_920 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:01 Sell Order executed CALL side SBIN_25-Jul-2024_CE_920 @  0.30000000000000004,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:01 Sell Order executed CALL side SBIN_25-Jul-2024_CE_920 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:01 Sell order executed @ Put SBIN25JUL24840PE @ TradePrice: 3.45
+16/07/2024 20:15:01 Sell Order executed PUT side SBIN_25-Jul-2024_PE_840 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:01 Sell Order executed PUT side SBIN_25-Jul-2024_PE_840 @  0.30000000000000004,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:01 Sell Order executed PUT side SBIN_25-Jul-2024_PE_840 @  0.30000000000000004,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:12 BuyrangeValue : 2854.5299999999997 @ SellrangeVale: 2582.67
+16/07/2024 20:15:12 Buy order executed @ Call ACC25JUL242900CE @ TradePrice: 19.35
+16/07/2024 20:15:12 Buy Order executed CALL side ACC_25-Jul-2024_CE_2900 @  19.35,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:12 Buy Order executed CALL side ACC_25-Jul-2024_CE_2900 @  19.35,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:12 Buy Order executed CALL side ACC_25-Jul-2024_CE_2900 @  19.35,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:12 Buy order executed @ Put ACC25JUL242560PE @ TradePrice: 16.8
+16/07/2024 20:15:12 Buy Order executed PUT side ACC_25-Jul-2024_PE_2560 @  19.35,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:12 Buy Order executed PUT side ACC_25-Jul-2024_PE_2560 @  19.35,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:12 Buy Order executed PUT side ACC_25-Jul-2024_PE_2560 @  19.35,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:12 Sell order executed @ Call ACC25JUL242800CE @ TradePrice: 34.55
+16/07/2024 20:15:12 Sell Order executed CALL side ACC_25-Jul-2024_CE_2800 @  19.35,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:12 Sell Order executed CALL side ACC_25-Jul-2024_CE_2800 @  19.35,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:12 Sell Order executed CALL side ACC_25-Jul-2024_CE_2800 @  19.35,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:12 Sell order executed @ Put ACC25JUL242640PE @ TradePrice: 36.9
+16/07/2024 20:15:12 Sell Order executed PUT side ACC_25-Jul-2024_PE_2640 @  19.35,stoploss= 0, target= 0 : Account = Akashudawant 
+16/07/2024 20:15:12 Sell Order executed PUT side ACC_25-Jul-2024_PE_2640 @  19.35,stoploss= 0, target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:12 Sell Order executed PUT side ACC_25-Jul-2024_PE_2640 @  19.35,stoploss= 0, target= 0 : Account = Sujata 
+16/07/2024 20:15:36 Buy trade exited @ Call ACC25JUL242900CE sqareoff exit  @ TradePrice: 19.85
+16/07/2024 20:15:36 Buy trade exited ce @  ACC_25-Jul-2024_CE_2900 @  19.85 target= 0 : Account = Akashudawant 
+16/07/2024 20:15:36 Buy trade exited ce @  ACC_25-Jul-2024_CE_2900 @  19.85 target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:36 Buy trade exited ce @  ACC_25-Jul-2024_CE_2900 @  19.85 target= 0 : Account = Sujata 
+16/07/2024 20:15:36 Buy trade exited @ Put ACC25JUL242560PE  sqareoff exit @ TradePrice: 17.3
+16/07/2024 20:15:36 Buy trade exited pe@  ACC_25-Jul-2024_PE_2560 @  17.3 target= 0 : Account = Akashudawant 
+16/07/2024 20:15:36 Buy trade exited pe@  ACC_25-Jul-2024_PE_2560 @  17.3 target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:36 Buy trade exited pe@  ACC_25-Jul-2024_PE_2560 @  17.3 target= 0 : Account = Sujata 
+16/07/2024 20:15:36 Sell trade exited @ Call ACC25JUL242800CE sqareoff exit  @ TradePrice: 35.05
+16/07/2024 20:15:36 sell trade exited ce@  ACC_25-Jul-2024_CE_2800 @  35.05 target= 0 : Account = Akashudawant 
+16/07/2024 20:15:36 sell trade exited ce@  ACC_25-Jul-2024_CE_2800 @  35.05 target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:36 sell trade exited ce@  ACC_25-Jul-2024_CE_2800 @  35.05 target= 0 : Account = Sujata 
+16/07/2024 20:15:36 Sell trade exited @ Put ACC25JUL242640PE sqareoff exit  @ TradePrice: 37.4
+16/07/2024 20:15:36 sell trade exited PE@  ACC_25-Jul-2024_PE_2640 @  37.4 target= 0 : Account = Akashudawant 
+16/07/2024 20:15:36 sell trade exited PE@  ACC_25-Jul-2024_PE_2640 @  37.4 target= 0 : Account = GaneshPawar 
+16/07/2024 20:15:36 sell trade exited PE@  ACC_25-Jul-2024_PE_2640 @  37.4 target= 0 : Account = Sujata 

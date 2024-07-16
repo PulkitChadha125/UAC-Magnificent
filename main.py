@@ -23,8 +23,7 @@ def get_client_detail():
             symbol_dict = {
                 'Title': row['Title'],
                 'Value': row['Value'],
-                'NiftyQtyMultiplier': row['NiftyQtyMultiplier'],
-                'Bankniftyultiplier': row['Bankniftyultiplier'],
+                'QtyMultiplier': row['QtyMultiplier'],
                 'autotrader': None,
             }
             client_dict[row['Title']] = symbol_dict
@@ -56,7 +55,9 @@ def get_user_settings():
                 'EntryDate': row['EntryDate'],'EntryTime': row['EntryTime'],'TradeExpiery':row['TradeExpiery'],'BaseSymbol':row['BaseSymbol'],
                 'ExitDate': row['ExitDate'],'ExitTime': row['ExitTime'],'InitialTrade':None,'BuyPercentage':row['BuyPercentage'],'SellPercentage':row['SellPercentage'],
                 'BuyrangeValue':None,'SellrangeVale':None,'Initial_Buy_Ce':None,'Initial_Buy_Pe':None,'Initial_Sell_Ce':None,
-                'Initial_Sell_Pe': None,
+                'Initial_Sell_Pe': None,"CALLBUY_STOCKDEV":None,"CALLSELL_STOCKDEV":None,"PUTBUY_STOCKDEV":None,"PUTSELL_STOCKDEV":None,'LimitSubValue':float(row['LimitSubValue'])
+                ,'TakeExitBuyCE':row['TakeExitBuyCE'], 'TakeExitBuyPE':row['TakeExitBuyPE'], 'TakeExitSellCE':row['TakeExitSellCE'], 'TakeExitSellPE':row['TakeExitSellPE'],
+                'InstantSQOFF':row['InstantSQOFF'],'INSTRUMENTSAVED':None
             }
             result_dict[row['Symbol']] = symbol_dict
         print("result_dict: ", result_dict)
@@ -118,21 +119,34 @@ def stock_dev_login_multiclient(client_dict):
 
 stock_dev_login_multiclient(client_dict)
 
+def stockdev_multiclient_orderplacement_sell(basesymbol,client_dict,timestamp,symbol,direction,Stoploss,Target,qty,price, side):
+    Orderqty=None
+    for value, daram in client_dict.items():
+        Title = daram['Title']
+        if isinstance(Title, str):
+
+            Orderqty=qty*daram['QtyMultiplier']
+            res=Stockdeveloper.regular_order(autotrader=daram["autotrader"],account=daram['Title'], segment="NSE", symbol=symbol,
+                                         direction=direction
+                                         , orderType="LIMIT", productType='DELIVERY', qty=Orderqty,
+                                         price=price)
+            print(res)
+            orderlog = (
+                f"{timestamp} Sell Order executed {side} side {symbol} @  {price},stoploss= {Stoploss}, "
+                f"target= {Target} : Account = {daram['Title']} ")
+            print(orderlog)
+            write_to_order_logs(orderlog)
 def stockdev_multiclient_orderplacement_buy(basesymbol,client_dict,timestamp,symbol,direction,Stoploss,Target,qty,price, side):
     Orderqty=None
     for value, daram in client_dict.items():
         Title = daram['Title']
         if isinstance(Title, str):
-            if basesymbol=="NIFTY":
-                Orderqty=qty*daram['NiftyQtyMultiplier']
-            if basesymbol=="BANKNIFTY":
-                Orderqty=qty*daram['Bankniftyultiplier']
-
-
-            Stockdeveloper.regular_order(autotrader=daram["autotrader"],account=daram['Title'], segment="NSE", symbol=symbol,
+            Orderqty=qty*daram['QtyMultiplier']
+            res=Stockdeveloper.regular_order(autotrader=daram["autotrader"],account=daram['Title'], segment="NSE", symbol=symbol,
                                          direction=direction
-                                         , orderType="MARKET", productType='INTRADAY', qty=Orderqty,
+                                         , orderType="LIMIT", productType='DELIVERY', qty=Orderqty,
                                          price=price)
+            print(res)
             orderlog = (
                 f"{timestamp} Buy Order executed {side} side {symbol} @  {price},stoploss= {Stoploss}, "
                 f"target= {Target} : Account = {daram['Title']} ")
@@ -205,13 +219,10 @@ def stockdev_multiclient_orderplacement_exit(basesymbol,client_dict,timestamp,sy
     for value, daram in client_dict.items():
         Title = daram['Title']
         if isinstance(Title, str):
-            if basesymbol=="NIFTY":
-                Orderqty=qty*daram['NiftyQtyMultiplier']
-            if basesymbol=="BANKNIFTY":
-                Orderqty=qty*daram['Bankniftyultiplier']
+            Orderqty=qty*daram['QtyMultiplier']
             Stockdeveloper.regular_order(autotrader=daram["autotrader"],account=daram['Title'], segment="NSE", symbol=symbol,
                                          direction=direction
-                                         , orderType="MARKET", productType='INTRADAY', qty=Orderqty,
+                                         , orderType="MARKET", productType='DELIVERY', qty=Orderqty,
                                          price=price)
             orderlog = (
                 f"{timestamp} {log} {symbol} @  {price} "
@@ -250,20 +261,46 @@ def get_token(symbol):
     if not row.empty:
         token = row.iloc[0]['token']
         return token
+
+
+
+def callstrike(price_dict, target_premium):
+    closest_ce_symbol = None
+    closest_ce_premium = float('-inf')
+    for price in price_dict:
+        ce_premium = price_dict[price]["CEPREMIUM"]
+        if ce_premium < target_premium and ce_premium > closest_ce_premium:
+            closest_ce_premium = ce_premium
+            closest_ce_symbol = price_dict[price]["CESymbol"]
+            reqprice = price
+
+    return reqprice
+
+def putstrike(price_dict, target_premium):
+    closest_pe_symbol = None
+    closest_pe_premium = float('-inf')
+    for price in price_dict:
+        pe_premium = price_dict[price]["PEPREMIUM"]
+        if pe_premium < target_premium and pe_premium > closest_pe_premium:
+            closest_pe_premium = pe_premium
+            closest_pe_symbol = price_dict[price]["PESymbol"]
+            reqprice = price
+
+    return reqprice
+once=False
 def main_strategy():
-    global result_dict,strikeListCe,strikeListPe,callltp ,putltp,CallStrikeListBuy ,CallStrikeListSell ,PutStrikeListBuy ,PutStrikeListSell
+    global once,result_dict,strikeListCe,strikeListPe,callltp ,putltp,CallStrikeListBuy ,CallStrikeListSell ,PutStrikeListBuy ,PutStrikeListSell
     try:
         for symbol, params in result_dict.items():
             symbol_value = params['Symbol']
             timestamp = datetime.now()
             timestamp = timestamp.strftime("%d/%m/%Y %H:%M:%S")
             if isinstance(symbol_value, str):
-                EntryDate=params['EntryDate']
                 EntryTime=params['EntryTime']
                 EntryTime = datetime.strptime(EntryTime, "%H:%M").time()
-                ExitDate=params['ExitDate']
-                ExitTime=params['ExitTime']
+                EntryDate = params['EntryDate']
                 EntryDate = datetime.strptime(EntryDate, "%d-%b-%y")
+
                 current_date = datetime.now().date()
                 current_time = datetime.now().time()
                 if current_date == EntryDate.date() and current_time.strftime("%H:%M") == EntryTime.strftime("%H:%M") \
@@ -315,27 +352,226 @@ def main_strategy():
                     print("Initial_Sell_Ce: ", params['Initial_Sell_Ce'])
                     print("Initial_Sell_Pe: ", params['Initial_Sell_Pe'])
                     buyceltp=AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Ce'],
-                                             token=get_token(params['Initial_Buy_Ce']))
+                                             token=get_token(params['Initial_Buy_Ce']))-params['LimitSubValue']
                     buypeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Pe'],
-                                                        token=get_token(params['Initial_Buy_Pe']))
+                                                        token=get_token(params['Initial_Buy_Pe']))-params['LimitSubValue']
                     sellpeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Pe'],
-                                                        token=get_token(params['Initial_Sell_Pe']))
+                                                        token=get_token(params['Initial_Sell_Pe']))-params['LimitSubValue']
                     sellceltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Ce'],
-                                                        token=get_token(params['Initial_Sell_Ce']))
+                                                        token=get_token(params['Initial_Sell_Ce']))-params['LimitSubValue']
 
                     OrderLog = f"{timestamp} Buy order executed @ Call {params['Initial_Buy_Ce']} @ TradePrice: {buyceltp}"
                     print(OrderLog)
                     write_to_order_logs(OrderLog)
+                    params["CALLBUY_STOCKDEV"]= f"{params['BaseSymbol']}_{Stockdeveloper.convert_date(params['TradeExpiery'])}_CE_{callstrike(CallStrikeListBuy,target_premium=params['BuyPremium_CE'])}"
+                    params["CALLSELL_STOCKDEV"]= f"{params['BaseSymbol']}_{Stockdeveloper.convert_date(params['TradeExpiery'])}_CE_{callstrike(CallStrikeListSell,target_premium=params['SellPremium_CE'])}"
+                    params["PUTBUY_STOCKDEV"]=  f"{params['BaseSymbol']}_{Stockdeveloper.convert_date(params['TradeExpiery'])}_PE_{putstrike(PutStrikeListBuy,target_premium=params['BuyPremium_PE'])}"
+                    params["PUTSELL_STOCKDEV"]=   f"{params['BaseSymbol']}_{Stockdeveloper.convert_date(params['TradeExpiery'])}_PE_{putstrike(PutStrikeListSell,target_premium=params['SellPremium_PE'])}"
+
+                    stockdev_multiclient_orderplacement_buy(basesymbol=params['BaseSymbol'], client_dict=client_dict, timestamp=timestamp,
+                                                             symbol=params["CALLBUY_STOCKDEV"], direction="BUY",
+                                                             Stoploss=0, Target=0, qty=params['Quantity'], price=buyceltp, side="CALL")
                     OrderLog = f"{timestamp} Buy order executed @ Put {params['Initial_Buy_Pe']} @ TradePrice: {buypeltp}"
                     print(OrderLog)
                     write_to_order_logs(OrderLog)
+                    stockdev_multiclient_orderplacement_buy(basesymbol=params['BaseSymbol'], client_dict=client_dict,
+                                                            timestamp=timestamp,
+                                                            symbol=params["PUTBUY_STOCKDEV"], direction="BUY",
+                                                            Stoploss=0, Target=0, qty=params['Quantity'],
+                                                            price=buyceltp, side="PUT")
                     OrderLog = f"{timestamp} Sell order executed @ Call {params['Initial_Sell_Ce']} @ TradePrice: {sellpeltp}"
                     print(OrderLog)
                     write_to_order_logs(OrderLog)
+                    stockdev_multiclient_orderplacement_sell(basesymbol=params['BaseSymbol'], client_dict=client_dict,
+                                                            timestamp=timestamp,
+                                                            symbol=params["CALLSELL_STOCKDEV"], direction="SELL",
+                                                            Stoploss=0, Target=0, qty=params['Quantity'],
+                                                            price=buyceltp, side="CALL")
                     OrderLog = f"{timestamp} Sell order executed @ Put {params['Initial_Sell_Pe']} @ TradePrice: {sellceltp}"
                     print(OrderLog)
                     write_to_order_logs(OrderLog)
+                    stockdev_multiclient_orderplacement_sell(basesymbol=params['BaseSymbol'], client_dict=client_dict,
+                                                             timestamp=timestamp,
+                                                             symbol=params["PUTSELL_STOCKDEV"], direction="SELL",
+                                                             Stoploss=0, Target=0, qty=params['Quantity'],
+                                                             price=buyceltp, side="PUT")
 
+                if current_date == EntryDate.date() and current_time.strftime("%H:%M") == EntryTime.strftime("%H:%M") \
+                    and params['InitialTrade']=="TRADE_TAKEN" and params['INSTRUMENTSAVED'] is None:
+                    params['INSTRUMENTSAVED']="Done"
+                    df = pd.DataFrame.from_dict(result_dict, orient='index')
+                    df.reset_index(inplace=True)
+                    df.rename(columns={'index': 'symbol'}, inplace=True)
+                    csv_file = 'result.csv'
+                    df.to_csv(csv_file, index=False)
+
+                timebasedexit()
+                instantsqoff()
+
+    except Exception as e:
+        print("Error happened in Main strategy loop: ", str(e))
+        traceback.print_exc()
+
+
+timeexit=False
+def timebasedexit():
+    global timeexit,result_dict, strikeListCe, strikeListPe, callltp, putltp, CallStrikeListBuy, CallStrikeListSell, PutStrikeListBuy, PutStrikeListSell
+    try:
+        df = pd.read_csv("result.csv")
+        timedict = df.set_index('symbol').T.to_dict()
+        for symbol, params in timedict.items():
+            symbol_value = params['Symbol']
+            timestamp = datetime.now()
+            timestamp = timestamp.strftime("%d/%m/%Y %H:%M:%S")
+            if isinstance(symbol_value, str):
+                ExitDate = params['ExitDate']
+                ExitTime = params['ExitTime']
+                ExitTime = datetime.strptime(ExitTime, "%H:%M").time()
+                ExitDate = datetime.strptime(ExitDate, "%d-%b-%y").date()
+                current_date = datetime.now().date()
+                current_time = datetime.now().time()
+
+                if current_date == ExitDate and current_time.strftime("%H:%M") == ExitTime.strftime("%H:%M") \
+                        and params['InitialTrade'] == "TRADE_TAKEN" :
+                    print(params['InitialTrade'])
+                    print("time based exit : initiated")
+                    params['InitialTrade'] = "TimeExitHappened"
+                    print(params['InitialTrade'])
+                    if params['TakeExitBuyCE']==True:
+                        buyceltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Ce'],
+                                                            token=get_token(params['Initial_Buy_Ce']))
+                        OrderLog = f"{timestamp} Buy trade exited @ Call {params['Initial_Buy_Ce']} exitery date exit  @ TradePrice: {buyceltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                 client_dict=client_dict, timestamp=timestamp,
+                                                                 symbol=params["CALLBUY_STOCKDEV"], direction="SELL",
+                                                                 Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                 price=buyceltp, log="Buy trade exited ce @ ")
+
+                    if params['TakeExitBuyPE']==True:
+                        buypeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Pe'],
+                                                            token=get_token(params['Initial_Buy_Pe']))
+                        OrderLog = f"{timestamp} Buy trade exited @ Put {params['Initial_Buy_Pe']}  exitery date exit @ TradePrice: {buypeltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                 client_dict=client_dict,
+                                                                 timestamp=timestamp,
+                                                                 symbol=params["PUTBUY_STOCKDEV"], direction="SELL",
+                                                                 Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                 price=buypeltp, log="Buy trade exited pe@ ")
+
+                    if params['TakeExitSellCE']==True:
+                        sellpeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Pe'],
+                                                             token=get_token(params['Initial_Sell_Pe']))
+                        OrderLog = f"{timestamp} Sell trade exited @ Call {params['Initial_Sell_Ce']} exitery date exit  @ TradePrice: {sellpeltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                 client_dict=client_dict,
+                                                                 timestamp=timestamp,
+                                                                 symbol=params["CALLSELL_STOCKDEV"], direction="BUY",
+                                                                 Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                 price=sellpeltp, log="sell trade exited ce@ ")
+                    if params['TakeExitSellPE']==True:
+                        sellceltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Ce'],
+                                                             token=get_token(params['Initial_Sell_Ce']))
+                        OrderLog = f"{timestamp} Sell trade exited @ Put {params['Initial_Sell_Pe']} exitery date exit  @ TradePrice: {sellceltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                 client_dict=client_dict,
+                                                                 timestamp=timestamp,
+                                                                 symbol=params["PUTSELL_STOCKDEV"], direction="BUY",
+                                                                 Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                 price=sellceltp, log="sell trade exited PE@ ")
+
+                if params['InitialTrade'] == "TimeExitHappened":
+                    params['InitialTrade']="NOMORETRADES"
+                    df = pd.DataFrame.from_dict(timedict, orient='index')
+                    df.reset_index(inplace=True)
+                    df.rename(columns={'index': 'symbol'}, inplace=True)
+                    csv_file = 'result.csv'
+                    df.to_csv(csv_file, index=False)
+
+    except Exception as e:
+        print("Error happened in Main strategy loop: ", str(e))
+        traceback.print_exc()
+
+def instantsqoff():
+    global result_dict, strikeListCe, strikeListPe, callltp, putltp, CallStrikeListBuy, CallStrikeListSell, PutStrikeListBuy, PutStrikeListSell
+    try:
+        df = pd.read_csv("result.csv")
+        instantsqoff_dict = df.set_index('symbol').T.to_dict()
+
+        for symbol, params in instantsqoff_dict.items():
+            symbol_value = params['Symbol']
+            timestamp = datetime.now()
+            timestamp = timestamp.strftime("%d/%m/%Y %H:%M:%S")
+            if isinstance(symbol_value, str):
+                print("InstantSQOFF: ",params['InstantSQOFF'])
+                print("InitialTrade: ", params['InitialTrade'])
+                print("symbol_value: ", symbol_value)
+                if params['InstantSQOFF'] == True :
+                    if params['InitialTrade'] == "TRADE_TAKEN" :
+                        print("Manual Sq off initiated")
+                        params['InitialTrade']=False
+                        buyceltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Ce'],
+                                                                token=get_token(params['Initial_Buy_Ce']))
+                        OrderLog = f"{timestamp} Buy trade exited @ Call {params['Initial_Buy_Ce']} sqareoff exit  @ TradePrice: {buyceltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                     client_dict=client_dict, timestamp=timestamp,
+                                                                     symbol=params["CALLBUY_STOCKDEV"],
+                                                                     direction="SELL",
+                                                                     Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                     price=buyceltp, log="Buy trade exited ce @ ")
+
+                        buypeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Buy_Pe'],
+                                                                token=get_token(params['Initial_Buy_Pe']))
+                        OrderLog = f"{timestamp} Buy trade exited @ Put {params['Initial_Buy_Pe']}  sqareoff exit @ TradePrice: {buypeltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                     client_dict=client_dict,
+                                                                     timestamp=timestamp,
+                                                                     symbol=params["PUTBUY_STOCKDEV"], direction="SELL",
+                                                                     Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                     price=buypeltp, log="Buy trade exited pe@ ")
+
+                        sellpeltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Pe'],
+                                                                 token=get_token(params['Initial_Sell_Pe']))
+                        OrderLog = f"{timestamp} Sell trade exited @ Call {params['Initial_Sell_Ce']} sqareoff exit  @ TradePrice: {sellpeltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                     client_dict=client_dict,
+                                                                     timestamp=timestamp,
+                                                                     symbol=params["CALLSELL_STOCKDEV"],
+                                                                     direction="BUY",
+                                                                     Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                     price=sellpeltp, log="sell trade exited ce@ ")
+                        sellceltp = AngelIntegration.get_ltp(segment="NFO", symbol=params['Initial_Sell_Ce'],
+                                                                 token=get_token(params['Initial_Sell_Ce']))
+                        OrderLog = f"{timestamp} Sell trade exited @ Put {params['Initial_Sell_Pe']} sqareoff exit  @ TradePrice: {sellceltp}"
+                        print(OrderLog)
+                        write_to_order_logs(OrderLog)
+                        stockdev_multiclient_orderplacement_exit(basesymbol=params['BaseSymbol'],
+                                                                     client_dict=client_dict,
+                                                                     timestamp=timestamp,
+                                                                     symbol=params["PUTSELL_STOCKDEV"], direction="BUY",
+                                                                     Stoploss=0, Target=0, qty=params['Quantity'],
+                                                                     price=sellceltp, log="sell trade exited PE@ ")
+                if params['InitialTrade']==False:
+                    params['InitialTrade'] = "NOMORETRADES"
+                    params['InstantSQOFF'] =False
+                    df = pd.DataFrame.from_dict(instantsqoff_dict, orient='index')
+                    df.reset_index(inplace=True)
+                    df.rename(columns={'index': 'symbol'}, inplace=True)
+                    csv_file = 'result.csv'
+                    df.to_csv(csv_file, index=False)
 
     except Exception as e:
         print("Error happened in Main strategy loop: ", str(e))
